@@ -1,3 +1,9 @@
 # map fields to DataCite XML
 
 librecat_uri_base('uri_base')
+
+if all_match(type, research_data)
+  add_field(resourceTypeGeneral, Dataset)
+else
+  add_field(resourceTypeGeneral, Text)
+end

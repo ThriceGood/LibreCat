@@ -32,7 +32,7 @@
   [%- IF lang %]
   <language>[% lang.0.iso | xml_strict %]</language>
   [%- END %]
-  <resourceType resourceTypeGeneral="[% type == 'research_data' ? 'Dataset' : 'Text'%]">[% type %]</resourceType>
+  <resourceType resourceTypeGeneral="[% resourceTypeGeneral %]">[% type %]</resourceType>
   <alternateIdentifiers>
     <alternateIdentifier alternateIdentifierType="URL">[% uri_base %]/record/[% _id %]</alternateIdentifier>
   </alternateIdentifiers>
