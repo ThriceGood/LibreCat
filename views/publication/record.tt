@@ -13,8 +13,6 @@
 [%- mainFile = [] %]
 [%- relMat = [] %]
 [%- relLink = [] %]
-[%- relLinkRd = [] %]
-[%- relLinkSw = [] %]
 [%- relFile = [] %]
 
 [%- FOREACH key IN related_material.keys %]
@@ -24,13 +22,7 @@
     [%- END %]
   [%- ELSIF key == "link" %]
     [%- FOREACH linkentry IN related_material.$key %]
-      [%- IF linkentry.relation == "research_data" %]
-        [%- relLinkRd.push(linkentry) %]
-      [%- ELSIF linkentry.relation == "software" %]
-        [%- relLinkSw.push(linkentry) %]
-      [%- ELSE %]
-        [%- relLink.push(linkentry) %]
-      [%- END %]
+      [%- relLink.push(linkentry) %]
     [%- END %]
   [%- END %]
 [%- END %]
@@ -210,7 +202,7 @@
           [%- IF display_citation %]
           <li class="hidden-md hidden-lg hidden-sm"><a href="#citethis">[% h.loc("frontdoor.tabs.cite_this") %]</a></li>
           [%- END %]
-          
+
           <li class="hidden-md hidden-lg hidden-sm"><a href="#export">[% h.loc("frontdoor.tabs.export_search") %]</a></li>
 
           [%- IF status == "public" %]
@@ -230,8 +222,6 @@
 
           [%- IF relMat.size OR relLink.size %] [% PROCESS publication/tab_relmat.tt %] [% END -%]
 
-          [%- IF relLinkRd.size OR relLinkSw.size %] [% PROCESS publication/tab_extrd.tt %] [% END -%]
-
         </div><!-- tab-content -->
       </div>
 
@@ -240,16 +230,13 @@
         <div class="hidden-sm hidden-md hidden-lg"><hr></div>
 
         <!-- Edit -->
-        [% IF p.can_edit( _id, user_id = session.user_id, role = session.role ) %]
+        [%- IF p.can_edit( _id, user_id = session.user_id, role = session.role ) %]
         <h3 id="edit">[% h.loc("frontdoor.editing_options") %]</h3>
         <a href="[% uri_base %]/librecat/record/edit/[% _id %]"><span class="fa fa-edit"></span> &nbsp;Edit this record</a><br />
-        [% IF status != "public" AND _id AND (!type.match("^bi") OR session.role == "super_admin") AND (type != "research_data" OR session.role == "super_admin") %]
+        [%- IF status != "public" AND (!type.match("^bi") OR session.role == "super_admin") %]
           <a href="[% uri_base %]/librecat/record/publish/[% _id %]"><span class="fa fa-cloud-upload"></span>[% h.loc("frontdoor.make_public") %]</a><br />
-        [% END %]
-        [% IF type == "research_data" AND status != "public" AND status != "submitted" AND session.role != "super_admin" %]
-          <a href="[% uri_base %]/librecat/record/publish/[% _id %]">[% h.loc("frontdoor.submit") %]</a>
-        [% END %]
-        [% END %]
+        [%- END %]
+        [%- END %]
 
         <!-- Export -->
         <h3 id="export">[% h.loc("frontdoor.export") %]</h3>
