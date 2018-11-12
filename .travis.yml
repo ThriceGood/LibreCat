@@ -25,6 +25,7 @@ before_install:
   - sudo dpkg -i --force-confnew es_download/elasticsearch-1.7.5.deb && sudo service elasticsearch restart
   - sudo apt-get install --yes --force-yes gearman gearman-tools gearman-job-server libgearman-dev imagemagick ghostscript
   - cpanm local::lib
+  - cpanm App::cpm
   - eval "$(perl -Mlocal::lib=${PWD}/perl_modules)"
 
 after_install:
@@ -38,15 +39,15 @@ service:
   - docker
 
 install:
-  - cpanm --quiet --installdeps --notest --force .
-  - if [ "$DEVEL_COVER" = "1" ]; then cpanm --quiet --notest Devel::Cover; fi
+  - cpm install --without-test
+  - if [ "$DEVEL_COVER" = "1" ]; then cpm --without-test Devel::Cover; fi
 
 script:
   - if [ "$DEVEL_COVER" = "1" ]; then cover -t +select ^lib +ignore ^ -make 'prove -Ilib -j 1 -r t; exit $?'; fi
   - if [ "$DEVEL_COVER" = "0" ]; then prove -lr t/; fi
 
 after_success:
-  - if [ "$DEVEL_COVER" = "1" ]; then cpanm --quiet --notest --skip-satisfied Devel::Cover::Report::Coveralls; fi
+  - if [ "$DEVEL_COVER" = "1" ]; then cpm --without-test --skip-satisfied Devel::Cover::Report::Coveralls; fi
   - if [ "$DEVEL_COVER" = "1" ]; then cover -report coveralls; fi
 
 notifications:
