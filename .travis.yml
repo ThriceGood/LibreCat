@@ -40,14 +40,14 @@ service:
 
 install:
   - cpm install --without-test
-  - if [ "$DEVEL_COVER" = "1" ]; then cpm --without-test Devel::Cover; fi
+  - if [ "$DEVEL_COVER" = "1" ]; then cpm install --without-test Devel::Cover; fi
 
 script:
   - if [ "$DEVEL_COVER" = "1" ]; then cover -t +select ^lib +ignore ^ -make 'prove -Ilib -j 1 -r t; exit $?'; fi
   - if [ "$DEVEL_COVER" = "0" ]; then prove -lr t/; fi
 
 after_success:
-  - if [ "$DEVEL_COVER" = "1" ]; then cpm --without-test --skip-satisfied Devel::Cover::Report::Coveralls; fi
+  - if [ "$DEVEL_COVER" = "1" ]; then cpm install --without-test --skip-satisfied Devel::Cover::Report::Coveralls; fi
   - if [ "$DEVEL_COVER" = "1" ]; then cover -report coveralls; fi
 
 notifications:
