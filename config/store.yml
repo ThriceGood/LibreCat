@@ -45,7 +45,8 @@ main:
 search:
   package: ElasticSearch
   options:
-    client: '1_0::Direct'
+    nodes:
+      - localhost:9200
     bags:
       project:
         cql_mapping:

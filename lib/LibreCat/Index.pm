@@ -24,6 +24,7 @@ use POSIX qw(strftime);
 
 has main       => (is => 'lazy');
 has alias      => (is => 'lazy');
+has nodes       => (is => 'lazy');
 has index1     => (is => 'lazy');
 has index2     => (is => 'lazy');
 has main_index => (is => 'lazy');
@@ -35,6 +36,10 @@ sub _build_main {
 
 sub _build_alias {
     Catmandu->config->{store}->{search}->{options}->{index_name};
+}
+
+sub _build_host {
+    Catmandu->config->{store}->{search}->{options}->{nodes};
 }
 
 # Use an explicit require_package->new to create instances of index1
@@ -68,7 +73,9 @@ sub _build_main_index {
 }
 
 sub _build_es {
-    Search::Elasticsearch->new();
+    my $self = shift;
+
+    Search::Elasticsearch->new(nodes => $self->nodes);
 }
 
 =head2 is_available()
