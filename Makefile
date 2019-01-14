@@ -1,5 +1,5 @@
 .SUFFIXES:
-	
+
 .PHONY: generate update cover test tidy
 
 usage:
@@ -35,7 +35,7 @@ else
 endif
 
 test:
-	prove -l -j 1 -r t
+	carton exec -- prove -l -j 1 -r t
 
 tidy:
 	tidyall -r lib t

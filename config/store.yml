@@ -11,17 +11,17 @@ main:
       audit:
         mapping:
             id:
-                type: string
+                type: text
                 column: pid
                 index: 1
             bag:
-                type: string
+                type: text
             process:
-                type: string
+                type: text
             action:
-                type: string
+                type: text
             message:
-                type: string
+                type: text
             time:
                 type: integer
       session:
@@ -45,13 +45,21 @@ main:
 search:
   package: ElasticSearch
   options:
-    nodes:
-      - localhost:9200
+    client: '5_0::Direct'
     bags:
       project:
         cql_mapping:
           default_index: basic
           indexes:
+            basic:
+              op:
+                'any': true
+                'all': true
+                '=': true
+                '<>': true
+                'exact': true
+              field: 'all'
+              description: "index with common fields..."
             id:
               op:
                 'any': true
@@ -60,14 +68,6 @@ search:
                 'exact': true
               field: '_id'
               sort: 'true'
-            basic:
-              op:
-                'any': true
-                'all': true
-                '=': true
-                '<>': true
-              field: ['_all','_id']
-              description: "index with common fields..."
             name:
               op:
                 'any': true
@@ -208,6 +208,15 @@ search:
         cql_mapping:
           default_index: basic
           indexes:
+            basic:
+              op:
+                'any': true
+                'all': true
+                '=': true
+                '<>': true
+                'exact': true
+              field: 'all'
+              description: "index with common fields..."
             title:
               op:
                 'any': true
@@ -219,15 +228,6 @@ search:
               field: ['title', 'alternative_title', 'title.exact', 'alternative_title.exact']
               sort: {field: 'title.exact'}
               description: "the title of the publication"
-            basic:
-              op:
-                'any': true
-                'all': true
-                '=': true
-                '<>': true
-                'exact': true
-              field: ['_all','_id']
-              description: "index with common fields..."
             abstract:
               op:
                 'any': true
@@ -690,7 +690,7 @@ search:
                 'all': true
                 '=': true
                 '<>': true
-              field: ['_all','_id']
+              field: 'all'
               description: "index with common fields..."
             fullname:
               op:
@@ -775,7 +775,7 @@ search:
                 'all': true
                 '=': true
                 '<>': true
-              field: ['_all','_id']
+              field: 'all'
               description: "index with common fields..."
             id:
               op:
@@ -827,7 +827,7 @@ search:
                 'all': true
                 '=': true
                 '<>': true
-              field: ['_all','_id']
+              field: 'all'
             id:
               op:
                 '=': true
@@ -908,309 +908,301 @@ search:
             #    language: de
             #    country: DE
     index_mappings:
-      project:
-        include_in_all: false
+      department:
         properties:
-          _id: {type: string, include_in_all: true, index: not_analyzed}
+          all: {type: text}
           date_created: {type: date, format: date_time_no_millis}
           date_updated: {type: date, format: date_time_no_millis}
           name:
-            type: multi_field
+            type: text
+            copy_to: all
             fields:
-              name: {type: string, include_in_all: true}
-              exact: {type: string, analyzer: tag}
+              exact: {type: text, analyzer: tag}
+          tree:
+            properties:
+              _id: {type: keyword}
+          layer: {type: text, analyzer: tag}
+          inactive: {type: byte}
+          display:
+            type: text
+            copy_to: all
+            fields:
+              exact: {type: text, analyzer: tag}
+
+      project:
+        properties:
+          all: {type: text}
+          date_created: {type: date, format: date_time_no_millis}
+          date_updated: {type: date, format: date_time_no_millis}
+          name:
+            type: text
+            copy_to: all
+            fields:
+              exact: {type: text, analyzer: tag}
           active: {type: byte}
-          acronym: {type: string, include_in_all: true}
-          alternative_name: {type: string, include_in_all: true}
-          grant_number: {type: string, analyzer: tag, include_in_all: true}
-          psp_element: {type: string, analyzer: tag, include_in_all: true}
-          call_identifier: {type: string, analyzer: tag}
-          description: {type: string, include_in_all: true}
+          acronym: {type: text, copy_to: all}
+          alternative_name: {type: text, copy_to: all}
+          grant_number: {type: text, analyzer: tag, copy_to: all}
+          psp_element: {type: text, analyzer: tag, copy_to: all}
+          call_identifier: {type: text, analyzer: tag}
+          description: {type: text, copy_to: all}
           funder:
-            type: multi_field
+            type: text
+            copy_to: all
             fields:
-              funder: {type: string, include_in_all: true}
-              exact: {type: string, analyzer: name}
-          funded: {type: string, analyzer: tag}
-          sc39: {type: string, analyzer: tag}
+              exact: {type: text, analyzer: name}
+          funded: {type: text, analyzer: tag}
+          sc39: {type: text, analyzer: tag}
           start_date:
-            type: multi_field
+            type: text
             fields:
-              start_date: {type: string, analyzer: datestring}
-              exact: {type: string, analyzer: tag}
+              exact: {type: text, analyzer: tag}
           end_date:
-            type: multi_field
+            type: text
             fields:
-              end_date: {type: string, analyzer: datestring}
-              exact: {type: string, analyzer: tag}
-          cooperator: {type: string, analyzer: name, include_in_all: true}
+              exact: {type: text, analyzer: tag}
+          cooperator: {type: text, analyzer: name, copy_to: all}
           department:
             properties:
-              _id: {type: string, index: not_analyzed}
+              _id: {type: keyword}
               name:
-                type: multi_field
+                type: text
                 fields:
-                  name: {type: string, include_in_all: true}
-                  exact: {type: string, analyzer: tag}
+                  exact: {type: text, analyzer: tag}
           owner: &personField2
             properties:
-              id: {type: string, index: not_analyzed}
+              id: {type: keyword}
               name:
                 properties:
                   full_name:
-                    type: multi_field
+                    type: text
+                    copy_to: all
                     fields:
-                      full_name: {type: string, include_in_all: true}
-                      exact: {type: string, analyzer: tag}
+                      exact: {type: text, analyzer: tag}
           principal_investigator: *personField2
           member: *personField2
-          project_type: {type: string}
+          project_type: {type: text}
 
       publication:
-        include_in_all: false
         properties:
-          _id: {type: string, include_in_all: true, index: not_analyzed}
+          all: {type: text}
           date_created: {type: date, format: date_time_no_millis}
           date_updated: {type: date, format: date_time_no_millis}
           title: &titleField
-            type: multi_field
+            type: text
+            copy_to: all
             fields:
-              title: {type: string, include_in_all: true}
-              exact: {type: string, analyzer: tag}
+              exact: {type: text, analyzer: tag}
           alternative_title: *titleField
           author: &personField
             type: object
             properties:
-              id: {type: string, include_in_all: true, index: not_analyzed}
+              id: {type: keyword, copy_to: all}
               full_name:
-                type: multi_field
+                type: text
+                copy_to: all
                 fields:
-                  full_name: {type: string, include_in_all: true}
-                  exact: {type: string, analyzer: tag}
+                  exact: {type: text, analyzer: tag}
           editor: *personField
           translator: *personField
           supervisor: *personField
           creator:
             properties:
-              id: {type: string, index: not_analyzed}
-              login: {type: string, analyzer: tag}
-          type: {type: string, analyzer: tag}
-          type_old: {type: string, analyzer: tag}
+              id: {type: keyword}
+              login: {type: text, analyzer: tag}
+          type: {type: text, analyzer: tag}
+          type_old: {type: text, analyzer: tag}
           research_data: {type: byte}
-          year: {type: date, format: year, include_in_all: true}
+          year: {type: date, format: year, copy_to: all}
           language:
             properties:
-              iso: {type: string, analyzer: tag}
+              iso: {type: text, analyzer: tag}
           extern: {type: byte}
           funded_apc: {type: byte}
           quality_controlled: {type: byte}
           popular_science: {type: byte}
           ec_funded: {type: byte}
-          volume: {type: string, analyzer: tag}
-          intvolume: {type: string, analyzer: tag}
-          issue: {type: string}
-          article_type: {type: string}
-          article_number: {type: string, analyzer: tag}
-          thematic_area: {type: string, analyzer: tag}
+          volume: {type: text, analyzer: tag}
+          intvolume: {type: text, analyzer: tag}
+          issue: {type: text}
+          article_type: {type: text}
+          article_number: {type: text, analyzer: tag}
+          thematic_area: {type: text, analyzer: tag}
           publication_identifier:
             properties:
-              isbn: {type: string, analyzer: tag, include_in_all: true}
-              issn: {type: string, analyzer: tag, include_in_all: true}
-              eissn: {type: string, analyzer: tag, include_in_all: true}
-              eisbn: {type: string, analyzer: tag, include_in_all: true}
-              unknown: {type: string, analyzer: tag, include_in_all: true}
-          status: {type: string, analyzer: tag}
-          publication_status: {type: string, analyzer: tag}
-          report_number: {type: string, analyzer: tag}
-          ipn: {type: string, analyzer: tag}
-          application_number: {type: string, index: no}
+              isbn: {type: text, analyzer: tag, copy_to: all}
+              issn: {type: text, analyzer: tag, copy_to: all}
+              eissn: {type: text, analyzer: tag, copy_to: all}
+              eisbn: {type: text, analyzer: tag, copy_to: all}
+              unknown: {type: text, analyzer: tag, copy_to: all}
+          status: {type: text, analyzer: tag}
+          publication_status: {type: text, analyzer: tag}
+          report_number: {type: text, analyzer: tag}
+          ipn: {type: text, analyzer: tag}
+          application_number: {type: text}
           conference:
             properties:
               name:
-                type: multi_field
+                type: text
+                copy_to: all
                 fields:
-                  name: {type: string, include_in_all: true}
-                  exact: {type: string, analyzer: tag}
-              start_date: {type: string, index: not_analyzed}
-              end_date: {type: string, index: not_analyzed}
-          publishing_date: {type: string, index: not_analyzed}
+                  exact: {type: text, analyzer: tag}
+              start_date: {type: keyword}
+              end_date: {type: keyword}
+          publishing_date: {type: keyword}
           abstract:
             properties:
-              text: {type: string, include_in_all: true}
+              text: {type: text, copy_to: all}
           keyword:
-            type: multi_field
+            type: text
+            copy_to: all
             fields:
-              keyword: {type: string, include_in_all: true}
-              exact: {type: string, analyzer: tag}
+              exact: {type: text, analyzer: tag}
           department:
             properties:
-              _id: {type: string, index: not_analyzed, include_in_all: true}
+              _id: {type: keyword, copy_to: all}
               tree:
                 properties:
-                  _id: {type: string, index: not_analyzed, include_in_all: true}
+                  _id: {type: keyword, copy_to: all}
           proj: {type: byte}
           project:
             properties:
-              _id: {type: string, index: not_analyzed, include_in_all: true}
+              _id: {type: keyword, copy_to: all}
           publication:
-            type: multi_field
+            type: text
+            copy_to: all
             fields:
-              publication: {type: string, include_in_all: true}
-              exact: {type: string, analyzer: tag}
-          publication_date: {type: string, index: no}
+              exact: {type: text, analyzer: tag}
+          publication_date: {type: text}
           series_title:
-            type: multi_field
+            type: text
+            copy_to: all
             fields:
-              series_title: {type: string, include_in_all: true}
-              exact: {type: string, analyzer: tag}
+              exact: {type: text, analyzer: tag}
           publisher:
-            type: multi_field
+            type: text
+            copy_to: all
             fields:
-              publisher: {type: string, include_in_all: true}
-              exact: {type: string, analyzer: tag}
-          doi: {type: string, index: not_analyzed, include_in_all: true}
-          ddc: {type: string}
+              exact: {type: text, analyzer: tag}
+          doi: {type: keyword, copy_to: all}
+          ddc: {type: text}
           external_id:
             properties:
-              isi: {type: string}
-              arxiv: {type: string}
-              pubmed: {type: string}
-              inspire: {type: string}
-              scoap3: {type: string}
-          isi: {type: byte}
-          arxiv: {type: byte}
-          pubmed: {type: byte}
-          inspire: {type: byte}
-          scoap3: {type: byte}
+              isi: {type: text}
+              arxiv: {type: text}
+              pubmed: {type: text}
+              inspire: {type: text}
+              scoap3: {type: text}
+          # isi: {type: byte}
+          # arxiv: {type: byte}
+          # pubmed: {type: byte}
+          # inspire: {type: byte}
+          # scoap3: {type: byte}
           file_date_updated: {type: date, format: date_time_no_millis}
           file:
             properties:
-              access_level: {type: string, analyzer: tag}
+              access_level: {type: text, analyzer: tag}
               date_updated: {type: date, format: date_time_no_millis}
-              open_access: {type: string, analyzer: tag}
-              embargo: {type: string, analyzer: tag}
+              open_access: {type: text, analyzer: tag}
+              embargo: {type: text, analyzer: tag}
           main_file_link:
             properties:
-              url: {type: string, analyzer: tag}
+              url: {type: text, analyzer: tag}
               open_access: {type: byte}
           oa: {type: byte}
-          alternative_id: {type: string, analyzer: tag, include_in_all: true}
-          defense_date: {type: date, index: no}
+          alternative_id: {type: text, analyzer: tag, copy_to: all}
+          # defense_date: {type: date}
           locked: {type: byte}
-          user_id: {type: string, index: no}
-          citation: {index: not_analyzed, type: object}
+          # user_id: {type: text, index: no}
+          citation: {type: object}
+
+      research_group:
+        properties:
+          all: {type: text}
+          date_created: {type: date, format: date_time_no_millis}
+          date_updated: {type: date, format: date_time_no_millis}
+          name:
+            type: text
+            copy_to: all
+            fields:
+              exact: {type: text, analyzer: tag}
+          acronym: {type: text, copy_to: all}
+          start_date:
+            type: text
+            fields:
+              start_date: {type: text, analyzer: datestring}
+              exact: {type: text, analyzer: tag}
+          end_date:
+            type: text
+            fields:
+              start_date: {type: text, analyzer: datestring}
+              exact: {type: text, analyzer: tag}
+          department:
+            properties:
+              id: {type: keyword}
+              name:
+                type: text
+                copy_to: all
+                fields:
+                  exact: {type: text, analyzer: tag}
 
       user:
-        include_in_all: false
         properties:
-          _id: {type: string, include_in_all: true, index: not_analyzed}
+          all: {type: text}
           date_created: {type: date, format: date_time_no_millis}
           date_updated: {type: date, format: date_time_no_millis}
           publication_count: {type: integer}
           full_name:
-            type: multi_field
+            type: text
+            copy_to: all
             fields:
-              full_name: {type: string, include_in_all: true, analyzer: name}
-              exact: {type: string, analyzer: tag}
-          last_name: {type: string, analyzer: name}
-          first_name: {type: string, analyzer: name}
+              exact: {type: text, analyzer: tag}
+          last_name: {type: text, analyzer: name}
+          first_name: {type: text, analyzer: name}
           old_name:
             properties:
               full_name:
-                type: multi_field
+                type: text
+                copy_to: all
                 fields:
-                  full_name: {type: string, include_in_all: true, analyzer: name}
-                  exact: {type: string, analyzer: tag}
-              first_name: {type: string, analyzer: name}
-              last_name: {type: string, analyzer: name}
-          idm_title: {type: string}
+                  exact: {type: text, analyzer: tag}
+              first_name: {type: text, analyzer: name}
+              last_name: {type: text, analyzer: name}
+          idm_title: {type: text}
           former: {type: byte}
           nonexist: {type: byte}
           researcher: {type: byte}
-          email_encoded: {type: string, index: not_analyzed}
-          photo: {type: string, index: not_analyzed}
+          email_encoded: {type: keyword}
+          photo: {type: keyword}
           department:
             properties:
-              _id: {type: string, index: not_analyzed}
+              _id: {type: keyword}
           reviewer:
             properties:
-              _id: {type: string, index: not_analyzed}
+              _id: {type: keyword}
           project_reviewer:
             properties:
-              _id: {type: string, index: not_analyzed}
+              _id: {type: keyword}
           access:
             properties:
-              id: {type: string, index: not_analyzed}
-              name: {type: string}
-          delegate: {type: string, analyzer: tag}
+              id: {type: keyword}
+              name: {type: text}
+          delegate: {type: text, analyzer: tag}
           data_manager:
             properties:
-              _id: {type: string, index: not_analyzed}
-              name: {type: string}
-          account_status: {type: string, analyzer: tag}
+              _id: {type: keyword}
+              name: {type: text}
+          account_status: {type: text, analyzer: tag}
           super_admin: {type: byte}
-          login: {type: string, analyzer: tag}
-          ext_institution: {type: string}
-          password: {type: string}
-          orcid: {type: string, analyzer: tag}
-          inspire: {type: string, analyzer: tag}
-          arxiv: {type: string, analyzer: tag}
-          googleScholar: {type: string, analyzer: tag}
-          github: {type: string, analyzer: tag}
-          researcherId: {type: string, analyzer: tag}
-          authorClaim: {type: string, analyzer: tag}
-          scopusId: {type: string, analyzer: tag}
-          alias: {type: string, analyzer: tag}
-
-      department:
-        include_in_all: false
-        properties:
-          _id: {type: string, include_in_all: true, index: not_analyzed}
-          date_created: {type: date, format: date_time_no_millis}
-          date_updated: {type: date, format: date_time_no_millis}
-          name:
-            type: multi_field
-            fields:
-              name: {type: string, include_in_all: true}
-              exact: {type: string, analyzer: tag}
-          tree:
-            properties:
-              _id: {type: string, index: not_analyzed}
-          layer: {type: string, analyzer: tag}
-          inactive: {type: byte}
-          display:
-            type: multi_field
-            fields:
-              display: {type: string, include_in_all: true}
-              exact: {type: string, analyzer: tag}
-
-      research_group:
-        include_in_all: false
-        properties:
-          _id: {type: string, include_in_all: true, index: not_analyzed}
-          date_created: {type: date, format: date_time_no_millis}
-          date_updated: {type: date, format: date_time_no_millis}
-          name:
-            type: multi_field
-            fields:
-              name: {type: string, include_in_all: true}
-              exact: {type: string, analyzer: tag}
-          acronym: {type: string, analyzer: tag}
-          start_date:
-            type: multi_field
-            fields:
-              start_date: {type: string, analyzer: datestring}
-              exact: {type: string, analyzer: tag}
-          end_date:
-            type: multi_field
-            fields:
-              start_date: {type: string, analyzer: datestring}
-              exact: {type: string, analyzer: tag}
-          department:
-            properties:
-              id: {type: string, index: not_analyzed}
-              name:
-                type: multi_field
-                fields:
-                  name: {type: string, include_in_all: true}
-                  exact: {type: string, analyzer: tag}
+          login: {type: text, analyzer: tag}
+          ext_institution: {type: text}
+          password: {type: text}
+          orcid: {type: text, analyzer: tag}
+          inspire: {type: text, analyzer: tag}
+          arxiv: {type: text, analyzer: tag}
+          googleScholar: {type: text, analyzer: tag}
+          github: {type: text, analyzer: tag}
+          researcherId: {type: text, analyzer: tag}
+          authorClaim: {type: text, analyzer: tag}
+          scopusId: {type: text, analyzer: tag}
+          alias: {type: text, analyzer: tag}

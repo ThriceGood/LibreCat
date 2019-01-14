@@ -1,4 +1,4 @@
-[%- IF !facets -%][% RETURN %][% END %]
+[%- UNLESS aggregations -%][% RETURN %][% END %]
 
 <div id="facets"></div>
 <div class="hidden-sm hidden-md hidden-lg"><hr></div>

@@ -127,7 +127,7 @@ store:
 
   search:
     options:
-      client: '1_0::Direct'
+      client: '5_0::Direct'
       index_name: librecat_test
   builtin_users:
     package: Hash
